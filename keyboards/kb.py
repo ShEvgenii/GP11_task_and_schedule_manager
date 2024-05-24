@@ -3,6 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardBu
 menu = [[InlineKeyboardButton(text="Редактировать расписание", callback_data="edit_schedule")],
             [InlineKeyboardButton(text="Показать расписание", callback_data="show_schedule")],
             [InlineKeyboardButton(text="Создать задачу", callback_data="add_task")],
+            [InlineKeyboardButton(text="Удалить задачу", callback_data="delete_task")],
             [InlineKeyboardButton(text="Показать задачи", callback_data="show_tasks")]]
 
 menu = InlineKeyboardMarkup(inline_keyboard=menu)

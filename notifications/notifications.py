@@ -40,7 +40,7 @@ async def notify_upcoming_tasks():
         current_time = datetime.datetime.now()
         for user_id, user_tasks in tasks.items():
             for task in user_tasks.tasks:
-                task_datetime = datetime.datetime.strptime(task.time, '%d.%m.%y %H:%M')
+                task_datetime = task.time
                 if time_task_notify - 1 <= (task_datetime - current_time).total_seconds() / 60 <= time_task_notify:
                     await send_notify(user_id, f"{task.time} {task.description}")
                     

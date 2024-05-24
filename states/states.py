@@ -7,3 +7,4 @@ class Gen(StatesGroup):
     edit_event_time = State()
     edit_event_name = State()
     edit_event_num = State()
+    edit_task_num = State()
