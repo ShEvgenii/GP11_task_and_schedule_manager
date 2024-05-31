@@ -18,7 +18,7 @@ class Notifier:
         await bot.send_message(user_id, text)
         await bot.session.close()
 
-class NotificationController:
+class NotificationChecker:
     async def _notify_upcoming_events(self):
         while True:
             current_time = datetime.datetime.now()

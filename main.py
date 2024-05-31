@@ -6,7 +6,7 @@ from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 import config
-from notifications.notifications import NotificationController
+from notifications.notifications import NotificationChecker
 from db.saver import Saver
 from handlers import schedule, tasks
 
@@ -18,8 +18,8 @@ async def main():
     dp.include_routers(schedule.router, tasks.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await Saver().start_scheduled_save()
-    await NotificationController().start_notify_events()
-    await NotificationController().start_notify_tasks()
+    await NotificationChecker().start_notify_events()
+    await NotificationChecker().start_notify_tasks()
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 
