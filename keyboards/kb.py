@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
 
 menu = [[InlineKeyboardButton(text="Редактировать расписание", callback_data="edit_schedule")],
             [InlineKeyboardButton(text="Показать расписание", callback_data="show_schedule")],

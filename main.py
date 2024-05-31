@@ -8,14 +8,14 @@ from aiogram.fsm.storage.memory import MemoryStorage
 import config
 from notifications.notifications import NotificationController
 from db.saver import Saver
-from handlers.handlers import router
+from handlers import schedule, tasks
 
 
 
 async def main():
     bot = Bot(token=config.BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher(storage=MemoryStorage())
-    dp.include_router(router)
+    dp.include_routers(schedule.router, tasks.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await Saver().start_scheduled_save()
     await NotificationController().start_notify_events()
