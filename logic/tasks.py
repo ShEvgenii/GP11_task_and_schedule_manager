@@ -29,9 +29,9 @@ class Tasks:
         result += "\n"
         return result
 
-    def __str__(self) -> str:
-        if self.tasks:
-            tasks_str = "\n".join([f"{task}" for task in self.tasks])
-            return f"Задачи:\n{tasks_str}"
-        else:
-            return "Нет задач"
+    # def __str__(self) -> str:
+    #     if self.tasks:
+    #         tasks_str = "\n".join([f"{task}" for task in self.tasks])
+    #         return f"Задачи:\n{tasks_str}"
+    #     else:
+    #         return "Нет задач"

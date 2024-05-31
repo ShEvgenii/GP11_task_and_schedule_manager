@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types.callback_query import CallbackQuery 
 from datetime import datetime
 
-#import utils
 import logic.utils as utils
 import logic.tasks as tsk
 import logic.schedule as schdl
@@ -22,7 +21,7 @@ async def start_handler(msg: Message):
     if msg.from_user.id not in weekly_schedule:
         weekly_schedule[msg.from_user.id] = schdl.WeeklySchedule().create_empty_weekly_schedule()
         tasks[msg.from_user.id] = tsk.Tasks()
-    await msg.answer(text.greet.format(name=msg.from_user.full_name) + str(msg.from_user.id), reply_markup=kb.menu)
+    await msg.answer(text.greet.format(name=msg.from_user.full_name), reply_markup=kb.menu)
 
 @router.message(F.text == "Меню")
 @router.message(F.text == "Выйти в меню")
@@ -61,7 +60,7 @@ async def add_task(clbck: CallbackQuery, state: FSMContext):
 @router.message(Gen.edit_event_time)
 async def edit_event_time(msg: Message, state: FSMContext):
     time = msg.text.strip()
-    if utils.validate_time_format(time):
+    if utils.Validator.validate_time_format(time):
         await state.update_data(draft_time=time)
         await state.set_state(Gen.edit_event_name)
         await msg.answer(text.edit_event_name)
@@ -93,10 +92,12 @@ async def edit_event_name(msg: Message, state: FSMContext):
 @router.callback_query(F.data == "delete_event")
 async def delete_event(clbck: CallbackQuery, state: FSMContext):
     user_id = clbck.from_user.id
-    formatted_schedule = weekly_schedule[user_id].show_weekly_schedule()
+    data = await state.get_data()
+    day = data.get('draft_day')
+    formatted_schedule = weekly_schedule[user_id].get_day_schedule(day).show_schedule()
     await state.set_state(Gen.edit_event_num)
     await clbck.message.delete()
-    await clbck.message.answer(f"Номера событий на сегодня:\n{formatted_schedule}\n\nВведите номер события для удаления:")
+    await clbck.message.answer(f"Номера событий на сегодня:\n{formatted_schedule}Введите номер события для удаления:")
 
 @router.message(Gen.edit_event_num)
 async def delete_event_num(msg: Message, state: FSMContext):
@@ -108,18 +109,15 @@ async def delete_event_num(msg: Message, state: FSMContext):
         day = data.get('draft_day')
         day_schedule = user_schedule.get_day_schedule(day)
         
-        if user_schedule:
-            if 1 <= event_num <= len(day_schedule.events):
-                #del user_schedule.days[day].events[event_num - 1]
-                day_schedule.delete_event(event_num)
-                formatted_schedule = day_schedule.show_schedule()
-                
-                await msg.answer("Событие успешно удалено!")
-                await msg.answer(formatted_schedule, reply_markup=kb.exit_kb)
-            else:
-                await msg.answer("Некорректный номер события. Попробуйте снова.")
+        if 1 <= event_num <= len(day_schedule.events):
+            day_schedule.delete_event(event_num)
+            formatted_schedule = day_schedule.show_schedule()
+            
+            await msg.answer("Событие успешно удалено!")
+            await msg.answer(formatted_schedule, reply_markup=kb.exit_kb)
         else:
-            await msg.answer("Произошла ошибка. Пожалуйста, начните заново.")
+            await msg.answer("Некорректный номер события. Попробуйте снова.")
+
     except ValueError:
         await msg.answer("Пожалуйста, введите номер события цифрой.")
 
@@ -135,12 +133,12 @@ async def add_task(clbck: CallbackQuery, state: FSMContext):
 @router.message(Gen.edit_task_time)
 async def edit_task_time(msg: Message, state: FSMContext):
     datetime_str = msg.text.strip()
-    if utils.validate_datetime_format(datetime_str):
+    if utils.Validator.validate_datetime_format(datetime_str):
         await state.update_data(draft_time=datetime_str)
         await state.set_state(Gen.edit_task_name)
         await msg.answer(text.edit_task_name)
     else:
-        await msg.answer("Пожалуйста, введите дату и время в формате ДД.ММ.ГГ ЧЧ:ММ (например, 01.05.22 10:30)")
+        await msg.answer(text.edit_correct_task_time)
 
 
 @router.message(Gen.edit_task_name)
@@ -169,17 +167,15 @@ async def delete_event_num(msg: Message, state: FSMContext):
         user_id = msg.from_user.id
         user_tasks = tasks.get(user_id)
         
-        if user_tasks:
-            if 1 <= tusk_num <= len(user_tasks.tasks):
-                user_tasks.delete_task(tusk_num)
-                formatted_tasks = user_tasks.get_tasks_str()
-                
-                await msg.answer("Задача успешно удалена!")
-                await msg.answer(formatted_tasks, reply_markup=kb.exit_kb)
-            else:
-                await msg.answer("Некорректный номер события. Попробуйте снова.")
+        if 1 <= tusk_num <= len(user_tasks.tasks):
+            user_tasks.delete_task(tusk_num)
+            formatted_tasks = user_tasks.get_tasks_str()
+            
+            await msg.answer("Задача успешно удалена!")
+            await msg.answer(formatted_tasks, reply_markup=kb.exit_kb)
         else:
-            await msg.answer("Произошла ошибка. Пожалуйста, начните заново.")
+            await msg.answer("Некорректный номер события. Попробуйте снова.")
+
     except ValueError:
         await msg.answer("Пожалуйста, введите номер события цифрой.")
 
